@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
 project(pintos_cs2043 C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 
 include_directories(src/)
 include_directories(src/devices)
