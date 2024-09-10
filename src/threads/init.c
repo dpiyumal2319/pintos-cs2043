@@ -76,6 +76,7 @@ int pintos_init (void) NO_RETURN;
 int
 pintos_init (void)
 {
+  // printf("Hello, Pintos!\n");
   char **argv;
 
   /* Clear BSS. */  
