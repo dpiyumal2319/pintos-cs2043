@@ -4,10 +4,12 @@
 #include <random.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "threads/flags.h"
 #include "threads/interrupt.h"
 #include "threads/intr-stubs.h"
 #include "threads/palloc.h"
+
 #include "threads/switch.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
@@ -587,6 +589,12 @@ uint32_t thread_stack_ofs = offsetof (struct thread, stack);
 
 bool wake_up_time_compare(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED);
 
+/* Puts the current thread to sleep.  It will not be scheduled
+   again until awoken by thread_wake();
+
+   This function must be called with interrupts turned off.  It
+   is usually a better idea to use one of the synchronization
+   primitives in synch.h. */
 void thread_sleep (struct thread *t, int64_t wakeup_time) {
 
   ASSERT( intr_get_level() == INTR_OFF);
@@ -599,9 +607,34 @@ void thread_sleep (struct thread *t, int64_t wakeup_time) {
   schedule();
 }
 
+
+/* Wakes up all the threads that are sleeping and whose wakeup time has passed the current time.
+   todo need to take current time instead of one passed in function call */
+
+void thread_wake (int64_t current_time) {
+  enum intr_level old_level = intr_disable (); // Disable interrupts
+
+  while (!list_empty(&sleep_list)) {
+    struct thread *t = list_entry(list_front(&sleep_list), struct thread, elem);
+    ASSERT(is_thread(t));
+    ASSERT(t->status == THREAD_SLEEPING);
+    if (t->wakeup_time >= current_time) {
+      break;
+    }
+    list_pop_front(&sleep_list);
+    t->status = THREAD_READY;
+    list_push_back(&ready_list, &t->elem);
+  }
+
+  enum intr_level new_level = intr_set_level (old_level); // Restore interrupts
+}
+
+
 //Comparision function to put the thread in to list
 bool wake_up_time_compare(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED) {
   const struct thread *t1 = list_entry(a, struct thread, elem);
   const struct thread *t2 = list_entry(b, struct thread, elem);
   return t1->wakeup_time < t2->wakeup_time;  // Sort by wake-up time.
 }
+
+

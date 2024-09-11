@@ -113,6 +113,11 @@ timer_sleep (int64_t ticks)
 
     enum intr_level new_level = intr_set_level (old_level); // Restore interrupts
 }
+
+/*New Wake function*/
+//Implemented in timer_interupt()
+
+
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
    turned on. */
 void
@@ -182,13 +187,13 @@ timer_print_stats (void)
 {
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
-
 /* Timer interrupt handler. */
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
+  thread_wake(timer_ticks()); // Wake up sleeping threads
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
