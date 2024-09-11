@@ -626,7 +626,7 @@ void thread_wake (int64_t current_time) {
     list_push_back(&ready_list, &t->elem);
   }
 
-  enum intr_level new_level = intr_set_level (old_level); // Restore interrupts
+  intr_set_level (old_level); // Restore interrupts
 }
 
 

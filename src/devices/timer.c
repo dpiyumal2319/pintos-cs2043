@@ -111,7 +111,7 @@ timer_sleep (int64_t ticks)
     struct thread *cur = thread_current ();
     thread_sleep(cur, wakeup_time); // Put the current thread to sleep
 
-    enum intr_level new_level = intr_set_level (old_level); // Restore interrupts
+    intr_set_level(old_level);
 }
 
 /*New Wake function*/
